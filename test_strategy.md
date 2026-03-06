@@ -2,7 +2,7 @@ Cloud Storage Tiering System
 Comprehensive Test Strategy & Documentation
 
 1. Overview
-This document defines the complete test strategy for Lucidity's Cloud Storage Tiering System — a platform that automatically moves file data between Hot (SSD), Warm (HDD), and Cold (Object Storage) tiers based on access frequency.
+This document defines the complete test strategy for Cloud Storage Tiering System — a platform that automatically moves file data between Hot (SSD), Warm (HDD), and Cold (Object Storage) tiers based on access frequency.
 The goal is to validate that all API endpoints are correct, tier transitions respect the defined rules, edge cases are handled gracefully, and the system is resilient under concurrent load.
 
 2. System Under Test
@@ -25,6 +25,7 @@ GET	/admin/stats	Retrieve storage tier usage statistics
 
 
 3. Test Strategy
+
 3.1 Functional Testing
 Verify each endpoint against its specification — covering the happy path, error paths, and boundary values.
 •	Upload: valid files, zero-byte, below 1 MB, above 10 GB, duplicate names
@@ -32,6 +33,7 @@ Verify each endpoint against its specification — covering the happy path, erro
 •	Metadata: field presence, correct initial tier, size accuracy
 •	Delete: existing, already-deleted (idempotency), nonexistent
 •	Admin: manual tiering trigger, stats field validation, auth enforcement
+
 3.2 Edge & Boundary Testing
 Focus on values at and around defined limits to catch off-by-one errors in both the API validation layer and the tiering logic.
 Scenario	Input	Expected Result
@@ -59,6 +61,7 @@ Validate authentication enforcement and resistance to common injection attacks.
 •	Path traversal sequences (../../) in fileId must be rejected
 •	Error responses must not expose internal file paths or stack traces
 •	Oversized Content-Length header must be rejected without consuming memory
+
 3.5 Concurrency Testing
 Validate system correctness when multiple clients interact simultaneously.
 •	10 parallel uploads must all succeed independently
@@ -67,6 +70,7 @@ Validate system correctness when multiple clients interact simultaneously.
 •	Concurrent upload + delete of the same file must not leave orphaned records
 
 4. Test Implementation Notes
+   
 4.1 Framework & Language
 Tests are written in Python using pytest. The requests library handles HTTP calls. All tests are parameterized where applicable and grouped into classes by endpoint.
 4.2 Tier Transition Mocking
@@ -79,7 +83,7 @@ API_BASE_URL	http://localhost:8000	Base URL of the API under test
 API_TOKEN	test-token	Bearer token for authentication
 
 
-5. Known Bugs
+6. Known Bugs
 The following bugs were identified during testing. Full details are in bug_report.md.
 ID	Severity	Summary	Status
 BUG-001	High	Files < 1 MB accepted but never tiered	Open
@@ -87,11 +91,12 @@ BUG-002	Medium	Concurrent tiering runs cause incorrect tier assignments	Open
 BUG-003	Medium	lastAccessedAt not updated on file download	Open
 
 
-6. Deliverables
+7. Deliverables
 •	test_storage_tiering.py — full automated test suite (pytest)
 •	bug_report.md — 3 documented bugs with repro steps and proposed fixes
-•	test_strategy.docx — this document
+•	test_strategy.md — this document
 •	pytest.ini — test runner configuration
 
 Run tests with:
   API_BASE_URL=http://your-server pytest -v
+
